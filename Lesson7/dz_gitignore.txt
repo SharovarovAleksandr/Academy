@@ -1,4 +1,0 @@
-.gitigore
-*.txt
-/newdir/*
-newtest.py
