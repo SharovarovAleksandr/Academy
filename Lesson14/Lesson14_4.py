@@ -1,7 +1,6 @@
-
+# Формуємо бінарне дерево
 import random
 from binarytree import *
-
 def inp(n):
 	while True:
 		print("Enter number less then", n, end="  ")
@@ -59,25 +58,24 @@ def gen_tr(h,r,aut):
 		j+=1
 	return ls
 
-# ls=[]
-# max=100
-# h=int(input("Height of tree : "))
-# if h<=0:
-# 	print("Такого дерева не існує! ")
-# else:
-# 	r = int(input("Root of tree   : "))
-# 	ls.append(r)
-# 	aut=input("Create BST automatically (Y/N) ")
-# 	if aut=="Y":
-# 		max =int(input("MAX node value in BST : "))
-# 	ls=gen_tr(h,r,aut)
-# print(ls)
-# t=build(ls)
-# print(t)
-# print(t.properties)
+ls=[]
+max=100
+h=int(input("Height of tree : "))
+if h<=0:
+	print("Такого дерева не існує! ")
+else:
+	r = int(input("Root of tree   : "))
+	ls.append(r)
+	aut=input("Create BST automatically (Y/N) ")
+	if aut=="Y":
+		max =int(input("MAX node value in BST : "))
+	ls=gen_tr(h,r,aut)
+print(ls)
+t=build(ls)
+print(t)
+print(t.properties)
 
 
-h=4
 t1=bst(h,is_perfect=True)
 print(t1)
 print(t1.properties)
