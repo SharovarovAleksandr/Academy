@@ -42,10 +42,10 @@ def del_unred_node(self,n):
     return self
 
 
-h=4
-t1=bst(h,is_perfect=False)
-print(t1)
-n=int(input("Введіть ноду гілку під якою буде видалено : "))
-t1.__delitem__(n)
-print(t1)
-#print(del_unred_node(t1,n))
+# h=3
+# t1=bst(h,is_perfect=True)
+# print(t1)
+# n=int(input("Введіть ноду гілку під якою буде видалено : "))
+#
+#
+# print(del_unred_node(t1,n))

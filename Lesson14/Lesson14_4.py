@@ -70,8 +70,9 @@ else:
 	if aut=="Y":
 		max =int(input("MAX node value in BST : "))
 	ls=gen_tr(h,r,aut)
-print(ls)
+	print(ls)
 t=build(ls)
+print(t.is_bst)
 print(t)
 print(t.properties)
 

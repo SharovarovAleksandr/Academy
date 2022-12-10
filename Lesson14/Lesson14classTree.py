@@ -1,5 +1,6 @@
-
 import binarytree
+#from binarytree import *
+
 class Tree(binarytree):
 
     def __init__(self, id_node):
@@ -92,6 +93,7 @@ class Tree(binarytree):
 
 
     # Find MAX Node
+    @classmethod
     def serch_max(self):
         ls = list(self.values)
         if len(ls) == 0:
@@ -119,6 +121,7 @@ class Tree(binarytree):
         return max
 
     # Find MIN Node
+    @classmethod
     def serch_min(self):
         ls = list(self.values)
         if len(ls) == 0:
@@ -146,6 +149,7 @@ class Tree(binarytree):
         return min
 
     # Deleted all branches under Node
+    @classmethod
     def del_unred_node(self, n):
         ls = list(self.values)
         if len(ls) == 0:
@@ -186,4 +190,12 @@ class Tree(binarytree):
                 self = build(ls)
         return self
 
+h=4
+t1=bst(h,is_perfect=False)
+print(t1)
+# n=int(input("Введіть ноду гілку під якою буде видалено : "))
+# print(t1.del_unred_node(n))
+k=t1.serch_max
 
+print(k)
+print(serch_min(t1))
