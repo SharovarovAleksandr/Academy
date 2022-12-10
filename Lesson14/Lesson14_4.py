@@ -83,6 +83,3 @@ print(t1.properties)
 l=t1.values
 print(l)
 
-# t3=heap(h)
-# print(t3)
-# print(t3.properties)

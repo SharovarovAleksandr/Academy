@@ -46,6 +46,4 @@ h=4
 t1=bst(h,is_perfect=False)
 print(t1)
 n=int(input("Введіть ноду гілку під якою буде видалено : "))
-t1.__delitem__(n)
-print(t1)
-#print(del_unred_node(t1,n))
+print(del_unred_node(t1,n))
