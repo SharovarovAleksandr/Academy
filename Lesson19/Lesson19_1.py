@@ -21,16 +21,17 @@ with open("C:\\Users\\Александр\\Desktop\\Academy\\Materials\\cities.cs
 	for i in city_list:
 		g.add_edge(i[0], i[1], weight=i[2])
 
+
 	m=""
 	while True:
 		start_city=input("Введіть начальний пункт поїздки (англійською мовою з великої літери) : ")
-		if any(x == start_city for x, *_ in city_list):
+		if start_city in g:
 			break
 		else:
 			print("Нажаль я не знаю такого міста. Спробуйте ще раз.")
 	while True:
 		finish_city=input("Введіть пункт призначення (англійською мовою з великої літери) : ")
-		if any(x == finish_city for x, *_ in city_list):
+		if finish_city  in g:
 			break
 		else:
 			print("Нажаль я не знаю такого міста. Спробуйте ще раз.")
