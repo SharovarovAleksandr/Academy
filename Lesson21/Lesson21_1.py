@@ -365,17 +365,21 @@ class Matrix:
                 return None
             for i in range(a.x):
                 a.mtr[0][i],a.mtr[n][i]=a.mtr[n][i],a.mtr[0][i]
-        n = a.mtr[0][0]
-        for i in range(a.x):
-            a.mtr[0][i]=a.mtr[0][i]/n
-        for j in range(a.x-1):
-            ls = []
-            for k in range(j+1,a.x):
-                for i in range(a.x):
-                    a.mtr[k][i]=a.mtr[k][i]+(-1)*a.mtr[k][i]*a.mtr[j][i]
-            n=a.mtr[j+1][j+1]
+        try:
+            n = a.mtr[0][0]
             for i in range(a.x):
-                a.mtr[j+1][i] = a.mtr[j+1][i] /n
+                a.mtr[0][i]=a.mtr[0][i]/n
+            for j in range(a.x-1):
+                ls = []
+                for k in range(j+1,a.x):
+                    for i in range(a.x):
+                        a.mtr[k][i]=a.mtr[k][i]+(-1)*a.mtr[k][i]*a.mtr[j][i]
+                n=a.mtr[j+1][j+1]
+                for i in range(a.x):
+                    a.mtr[j+1][i] = a.mtr[j+1][i] /n
+        except ZeroDivisionError:
+            return None
+
         return a
 
     # Функція вираховує ранг матриці
