@@ -61,7 +61,7 @@ class Matrix:
                 st="{:{align}{width}}"
             else:
                 st="{:{align}{width}.{precision}f}"
-            print(f'Matrix {self.y}x{self.x}   Determinant={self.det}  Rank={self.rank()}')
+            print(f'Matrix {self.y}x{self.x}   Determinant={self.det} ')
             for i in range(self.y):
                 print("|",end="")
                 for j in range(self.x-1):
@@ -440,6 +440,7 @@ print(a.mult_num(3))
 print(c.add_num(-5))
 print(b.div_num(3))
 print(a.add(b))
+print("Rank=",a.rank())
 c=Matrix(lst3)
 print(c.triangl_transform())
 
