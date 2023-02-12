@@ -1,0 +1,21 @@
+Car,Cost,Fuel,Speed,Load_capacity,Type
+Honda Accord,32990,9.1,210,416,Sport
+Honda CR-V,27000,9.8,188,520,Sedan
+BMW X6,50000,10.1,240,600,Sport
+Bentley Continental,75000,14.5,330,358,Sport
+Volkswagen Amarok,30000,7.6,179,835,Families
+Volvo S60,35000,4.1,190,415,Sedan
+Infiniti JX35,30000,10.7,190,534,Sedan
+Land Rover Range Rover,60000,7.5,210,840,Sport
+Lexus CT,55000,4.1,180,360,Families
+Mazda 3,24000,7.8,174,460,Families
+Mercedes-Benz A-Class,50000,5.8,202,565,Sport
+Mini Countryman,25000,7.9,223,510,Sport
+Mitsubishi ASX,28000,7.6,186,580,Sedan
+Mitsubishi Outlandar,35000,7,200,640,Sedan
+Nissan Qashqai,28000,8,181,415,Families
+Skoda Fabia,16000,4.7,164,515,Families
+Toyota 86,27000,7.8,226,403,Sport
+Ford Escape,20000,10.2,187,476,Families
+Chevrolet Aveo,15000,7.1,186,445,Families
+Hyundai Elantra,24000,7.1,202,543,Sport
