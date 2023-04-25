@@ -1,28 +1,28 @@
 # Програма Prophet_model написана на базі моделі лінійної регресії Prophet (https://facebook.github.io/prophet/) для
 # прогнозування курсів фінансових інструментів та працює в парі з торговим радником Prophet_Start на торговому терміналі
-# МТ5 в режимі скрипта Python. Для її роботи необхідно установити програму у каталог скриптів торгового терміналу МТ5 та
-# провести її запуск у середовищі MetaEditor, який є невід`ємною частиною торгового терміналу МТ5. Після цього програма
+# МТ5 в режимі скрипта Python. Для її роботи необхідно установити програму в каталог скриптів торгового терміналу МТ5 та
+# провести її запуск у середовищі MetaEditor, яке є невід`ємною частиною торгового терміналу МТ5. Після цього програма
 # з`явиться у каталозі скриптів торгового терміналу з поміткою скрипт Python.
 # Програма працює виключно на таймфреймі D1.
 # За основу алгоритма прийнято три гіпотези для побудови прогнозів:
 # 1. Модель ideal - коли реальні торгові дані перетворюються в ідеальний календар, який не містить пропусків даних, що
-#    обумовлено вихідними та святковими днями у яких не проходять торги.
-# 2. Модель normal - коли данні для моделі готуються з пустими значеннями які припадають на вихідні та свята. При цьому
-#    можуть враховуватися вихідні дні з розподіленим впливом на п`ятницю та понеділок методом holidays (window) описаним
+#    обумовлено вихідними та святковими днями, під час яких не проходять торги.
+# 2. Модель normal - коли дані для моделі готуються з пустими значеннями, які припадають на вихідні та свята. При цьому
+#    можуть враховуватися вихідні дні з розподіленим впливом на п`ятницю та понеділок методом holidays (window), описаним
 #    в технічній документації моделі Prophet.
 # 3. Модель Transform - яка проводить корегування даних та заповнює пусті значення плавно розподіленими середніми
-#    значеннми між точками до свята та після свята.
+#    значеннями між точками до свята та після свята.
 # В якості додаткових регрессорів всі моделі можуть використовувати:
-#   - вихідні дні офіційних свят прийнятих для NYSE, або модель коли всі незаповнені дні вважаються вихідними;
-#   - використовувати фрактали Вільямса як точки changepoints згідно з документацією моделі Prophet.
-#   - брати за основу два регресійних фактора Open-Close (ос) або ATR (atr) та додавати їх до обрахунків
-#  В результаті роботи програма створює файли прогнозів згідно із стандартами обміну файлами між Prophet_model та Prophet_Start
-#  Вхідний файл для програми - це останній (за часом)csv файл створений у спеціальному середовищі терміналу MT5 в каталозі Files
-#  В якості вихідних файлів - програма формує кількість файлів у відповідності до кількості прогнозованих показників
+#   - вихідні дні офіційних свят, прийнятих для NYSE, або модель, коли всі незаповнені дні вважаються вихідними;
+#   - використовувати фрактали Вільямса як точки changepoints згідно з документацією моделі Prophet;
+#   - брати за основу два регресійних фактори Open-Close (ос) або ATR (atr) та додавати їх до обрахунків.
+#  В результаті роботи програма створює файли прогнозів згідно зі стандартами обміну файлами між Prophet_model та Prophet_Start
+#  Вхідний файл для програми - це останній (за часом)csv файл, створений у спеціальному середовищі терміналу MT5 в каталозі Files
+#  В якості вихідних файлів програма формує кількість файлів у відповідності до кількості прогнозованих показників.
 #  обраних у модулі Prophet_Start. Стандарт створення файлів Forecast─high─GBPCAD─2023-04-07.csv.
-#  Де high - параметр предикції може приймати значення (open,high,low,close,ma,atr).
-#  GBPCAD - фінансовий інструмент на якому буде проводитися предикція. Будь який з доступних в терміналі
-#  2023-04-07 - дата у форматі YYYY-MM-DD яка відповідає останній даті періоду навчання моделі.
+#  Де high - параметр предикції, може приймати значення (open,high,low,close,ma,atr).
+#  GBPCAD - фінансовий інструмент, на якому буде проводитися предикція. Будь-який із доступних в терміналі.
+#  2023-04-07 - дата у форматі YYYY-MM-DD, яка відповідає останній даті періоду навчання моделі.
 #  З цієї дати буде проводиться предикція.
 #
 #
@@ -38,30 +38,30 @@ import MetaTrader5 as mt5
 import warnings
 warnings.filterwarnings("ignore")
 
-# Процедура готує данні для моделі Ideal
+# Процедура готує дані для моделі Ideal
 def ideal(df1, ideal_mark, predict_num,  holiday_method, regression_method, changepoint_method):
     hol_day_method = None    # метод ideal не дозволяє використовувати свята в якості предиктора
     num_date = len(df1)
-    ser_regress = pd.Series()    # Змінна в якій буде створюватися додатковий регресійний фактор
+    ser_regress = pd.Series()    # Змінна, в якій буде створюватися додатковий регресійний фактор
     result = pd.DataFrame(columns=['ds', 'y'], index=pd.RangeIndex(0, num_date))    # результуючий датафрейм
 # Цикл змінює реальні дати на ідеальний календар без вихідних та свят
     for ii in range(num_date):
         result['ds'][num_date - 1 - ii] = (df1['ds'][num_date - 1] - timedelta(days=ii))
-# Формуємо данні та розраховуємо додатковий регресійний фактор
+# Формуємо дані та розраховуємо додатковий регресійний фактор
     if regression_method == "oc":
         result['y'] = df1['regression=oc'][:].values
         ser_regress = model_reg(result, predict_num)
     if regression_method == "atr":
         result['y'] = df1['regression=atr'][:].values
         ser_regress = model_reg(result, predict_num)
-#  За необхідністю формуємо changepoint_list з фракталів
+#  За необхідності формуємо changepoint_list з фракталів
     if changepoint_method == "fractals":
         result['up_fractal'] = df1['up_fractal'][:].values
         result['down_fractal'] = df1['down_fractal'][:].values
         cng_lst=changepoint(result)
     else:
         cng_lst = None
-#  Формуємо стовбчик 'y' для предиції  згідно документації моделі  Prophet
+#  Формуємо стовбчик 'y' для предиції  згідно з документацією моделі  Prophet
     result['y'] = df1[ideal_mark][:].values
     if 'up_fractal' in result.columns:
         result.drop('up_fractal', axis=1, inplace=True)
@@ -70,19 +70,19 @@ def ideal(df1, ideal_mark, predict_num,  holiday_method, regression_method, chan
     return result, hol_day_method, ser_regress, cng_lst
 
 
-# Процедура готує данні для моделі Normal
+# Процедура готує дані для моделі Normal
 def normal(df1, normal_mark, predict_num,  holiday_method, regression_method, changepoint_method):
     result = pd.DataFrame(columns=['ds', 'y'])
     result['ds'] = df1['ds']
     ser_regress = pd.Series()
-# Формуємо данні та розраховуємо додатковий регресійний фактор
+# Формуємо дані та розраховуємо додатковий регресійний фактор
     if regression_method == "oc":
         result['y'] = df1['regression=oc'][:].values
         ser_regress = model_reg(result, predict_num)
     if regression_method == "atr":
         result['y'] = df1['regression=atr'][:].values
         ser_regress = model_reg(result, predict_num)
-#  За необхідністю формуємо changepoint_list з фракталів
+#  За необхідності формуємо changepoint_list з фракталів
     if changepoint_method == "fractals":
         cng_lst = changepoint(df1)
     else:
@@ -102,7 +102,7 @@ def normal(df1, normal_mark, predict_num,  holiday_method, regression_method, ch
 # Процедура трансформує данні та заповнює пробіли середніми значеннями для моделі Transform
 def transform_mark(df1, trans_mk):
     start_tr = df1['ds'][0]           # Дата початку обрахунків
-    end_tr = df1['ds'][len(df) - 1]   # Дата кінечна обрахунків
+    end_tr = df1['ds'][len(df) - 1]   # Дата кінця обрахунків
     result = pd.DataFrame(columns=['ds', 'y'], index=pd.RangeIndex((end - start).days + 1))
 # Генеруємо повний календар дат
     result['ds'] = pd.date_range(start_tr, end_tr, freq='d')
@@ -124,23 +124,23 @@ def transform_mark(df1, trans_mk):
     return result
 
 
-# Процедура готує данні безпосередньо для моделі Transform
+# Процедура готує дані безпосередньо для моделі Transform
 def transform(df1, trans_mk, predict_num,  holiday_method, regression_method, changepoint_method):
     ser_regress = pd.Series()
     result = pd.DataFrame()
-# Формуємо данні та розраховуємо додатковий регресійний фактор
+# Формуємо дані та розраховуємо додатковий регресійний фактор
     if regression_method == "oc":
         result = transform_mark(df1, 'regression=oc')
         ser_regress = model_reg(result, predict_num)
     if regression_method == "atr":
         result = transform_mark(df1, 'regression=atr')
         ser_regress = model_reg(result, predict_num)
-#  За необхідністю формуємо changepoint_list з фракталів
+#  За необхідности формуємо changepoint_list з фракталів
     if changepoint_method == "fractals":
         cng_lst = changepoint(df1)
     else:
         cng_lst = None
-#  Формуємо стовбчик 'y' для предиції  згідно документації моделі Prophet
+#  Формуємо стовбчик 'y' для предикції  згідно з документацією моделі Prophet
     result = transform_mark(df1, trans_mk)
 #  За необхідності формуємо фактор свят
     if holiday_method == "country":
@@ -152,7 +152,7 @@ def transform(df1, trans_mk, predict_num,  holiday_method, regression_method, ch
     return result, hol_day_method, ser_regress, cng_lst
 
 
-# Процедура готує данні про свята для моделі Transform, Normal
+# Процедура готує дані про свята для моделі Transform, Normal
 def get_holiday_weekend(df1, predict_n, window=False):
     start_hol = df1['ds'][0]                # Дата початку обрахунків
     end_hol = df1['ds'][len(df1) - 1]       # Дата кінця обрахунків
@@ -161,14 +161,14 @@ def get_holiday_weekend(df1, predict_n, window=False):
     predict_lst = pd.date_range(end_hol, end_predict, freq='d')
     df_hol_day = pd.DataFrame(columns=['ds', 'holiday'])
     df_hol_day['ds'] = pd.date_range(start_hol, end_hol, freq='d')
-# Визначаєм співпадіння індексів
+# Визначаємо співпадіння індексів
     idx = df_hol_day[df_hol_day['ds'].isin(df1['ds'])].index
     df_hol_day.drop(idx, inplace=True)
     df_hol_day.reset_index(drop=True, inplace=True)
     end_index = len(df_hol_day)
 # Отримуємо святкові дні за розкладом NYSE
     nyse_holiday = holidays.NYSE(years=[end_hol.year, end_predict.year], observed=True)
-# Перевіряємо співпадіння дат із святами та заповнюємо значення згідно з вимогами моделі Prophet
+# Перевіряємо співпадіння дат зі святами та заповнюємо значення згідно з вимогами моделі Prophet
     for ii in range(1, predict_n + 1):
         if predict_lst[ii].day_of_week == 5 or predict_lst[ii].day_of_week == 6 or predict_lst[ii] in nyse_holiday:
             df_hol_day.loc[end_index] = [predict_lst[ii], 'weekend']
@@ -180,7 +180,7 @@ def get_holiday_weekend(df1, predict_n, window=False):
         df_hol_day['upper_window'] = 1
     return df_hol_day
 
-# Процедура готує данні про робочі дні NYSE для моделі Transform, Normal
+# Процедура готує дані про робочі дні NYSE для моделі Transform, Normal
 def get_holiday_country(df1, predict_n):
     start_hol=df1['ds'][0]
     end_hol=df1['ds'][len(df1)-1]
@@ -190,13 +190,13 @@ def get_holiday_country(df1, predict_n):
     df_hol_day['ds'] = pd.to_datetime(df_hol_day['ds'])
     return df_hol_day
 
-# Процедура здійснює пошук та ліквідацію ложних фракталів, а також готує changepoint list для роботи моделі
+# Процедура здійснює пошук та ліквідацію хибних фракталів, а також готує changepoint list для роботи моделі
 def changepoint(df1):
     change_lst = []
     jj = 0
     ii = 0
     while ii <= len(df1) - 1 or jj <= len(df1) - 1:  # цикл проходу по історії фракталів
-# Додаємо у лист верхні не ложні фрактали
+# Додаємо у лист верхні не хибні фрактали
         if df1['up_fractal'][ii] > 0 and not df1['down_fractal'][ii] > 0:
             temp_lst_up = []  # створюємо тимчасовий лист для збереження up фракталів
             jj = ii
@@ -232,7 +232,7 @@ def changepoint(df1):
                         change_lst.append(df1['ds'][indx])
             ii = jj
             continue
-# Додаємо у лист нижні не ложні фрактали
+# Додаємо у лист нижні не хибні фрактали
         if df1['down_fractal'][ii] > 0 and not df1['up_fractal'][ii] > 0:
             temp_lst_down = []   # створюємо тимчасовий лист для збереження down фракталів
             jj = ii
@@ -302,7 +302,7 @@ def changepoint(df1):
 
             continue
         ii += 1
-# Приводим список до вимог моделі Prophet
+# Приводимо список до вимог моделі Prophet
     change_lst = set(change_lst)
     change_lst = list(change_lst)
     change_lst.sort()
@@ -317,7 +317,7 @@ def result_processing(df1, predict_n):
     df1.reset_index(drop=True, inplace=True)
     return df1
 
-# Функція будує регрессійниій фактор на базе моделі
+# Функція будує регрессійний фактор на базі моделі
 def model_reg(df_reg, predict_num):
     m = Prophet(holidays=None,
                holidays_prior_scale=10,
@@ -345,7 +345,7 @@ def model_reg(df_reg, predict_num):
 # Ініціалізуємо бібліотеку mt5
 mt5.initialize()
 
-# Знаходимо самий останній змінений файл
+# Знаходимо останній змінений файл
 path = 'C:\\Users\\Александр\\AppData\\Roaming\\MetaQuotes\\Terminal\\550A9E6B699B2474CBE17711F34DD758\\MQL5\\Files\\'
 files = os.listdir(path)
 max_date = os.path.getmtime(path + files[0])
@@ -354,7 +354,7 @@ for i in range(len(files)):
     if os.path.getmtime(path + files[i]) > max_date:
         max_date = os.path.getmtime(path + files[i])
         n = i
-# Отримаємо ім'я фінансового інструмента
+# Отримуємо ім'я фінансового інструмента
 ticker = files[n][4:10]
 
 # Читаємо файл
@@ -425,7 +425,7 @@ changepoint_lst = None
 # Відкриваємо файл журналу
 file_jr = open('C:\\Users\\Александр\\AppData\\Roaming\\MetaQuotes\\Terminal\\550A9E6B699B2474CBE17711F34DD758\\MQL5\\Files\\prophet_journal.csv', 'a')
 
-# Починаємо розрахунки по кожній змінній та результати кожного передбачення зберігаємо у файл 
+# Починаємо розрахунки за кожною змінною та результати кожного передбачення зберігаємо у файл 
 df_rab = pd.DataFrame()
 series_regress = pd.Series()
 
@@ -464,26 +464,26 @@ for i in mark:
                     uncertainty_samples=samples,
                     stan_backend=stan)
 
-# При необхідності додаємо до моделі регресійниі фактор
+# За необхідності додаємо до моделі регресійний фактор
     if regression_method == "oc" or regression_method == "atr":
         model.add_regressor('regress')
 # Навчання моделі
     model.fit(df_rab)
-# Підготовка данних майбутьніх періодов
+# Підготовка даних майбутніх періодів
     future_new = model.make_future_dataframe(periods=predict_num)
-# При застосуванні регресійних факторів додаємо регресійні фактори майбутьніх періодов
+# При застосуванні регресійних факторів додаємо регресійні фактори майбутніх періодів
     if regression_method == "oc" or regression_method == "atr":
         future_new['regress'] = series_regress
 # Робимо передбачення
     forecast_new = model.predict(future_new)
     
-# Зберігаємо файл з данними передбачення
+# Зберігаємо файл з даними передбачення
     file_forecast = "Forecast─" + i + "─" + ticker + "─" + end.strftime("%Y─%m─%d")+".csv"
     forecast_new.rename(columns={'yhat': i}, inplace=True)
     forecast_new[['ds', i, 'yhat_lower', 'yhat_upper']].to_csv('C:\\Users\\Александр\\AppData\\Roaming\\MetaQuotes\\Terminal\\550A9E6B699B2474CBE17711F34DD758\\MQL5\\Files\\' + file_forecast)   
 
-# Зберігаємо данні роботи у журнал для цього необхідно обрахувати МАЕ
-# Перевіряємо чи є необхідність в обрахунку МАЕ 
+# Зберігаємо дані роботи в журнал. Для цього необхідно обрахувати МАЕ
+# Перевіряємо, чи є необхідність в обрахунку МАЕ 
     mae = None
     if end+timedelta(days=predict_num+1) < datetime.today():
      # Визначаємо періоди обрахунку МАЕ   
@@ -498,7 +498,7 @@ for i in mark:
             calc_day = calc_day + timedelta(days=1)
         end_day_predict += timedelta(days=num_weekend)
         
-     # Завантажуємо данні з терміналу
+     # Завантажуємо дані з терміналу
         mae_period = pd.DataFrame(mt5.copy_rates_from(ticker, mt5.TIMEFRAME_D1, end_day_predict, predict_num))
         mae_period['time']=pd.to_datetime(mae_period['time'], unit='s')
         mae_period['atr']=mae_period['high']-mae_period['low']
@@ -510,14 +510,14 @@ for i in mark:
                 mae += abs(mae_period[i][q] - forecast_new[i][len(forecast_new)-predict_num+q])
             mae=mae/predict_num                
                 
-# Готуємо данні для запису у журнал
+# Готуємо дані для запису в журнал
     journal_str=str(mae)+";"+start.strftime('%Y-%m-%d')+";"+end.strftime('%Y-%m-%d')+";"+i+";"+method+";"+str(predict_num)+";"
     journal_str+=str(changepoint_method)+";"+str(holiday_method)+";"+str(regression_method)+";"+str(chang_range)+";"
     journal_str+=str(chang_prior_scale)+";"+str(hol_prior_scale)+";"+str(year_seasonality)+";"+str(week_seasonality)+";"
     journal_str+=str(day_seasonality)+";"+str(growth_ln)+";"+str(n_changepoint)+";"+str(season_mode)+";"
     journal_str+=str(season_prior_scale)+";"+str(mcmc)+";"+str(interval)+";"+str(samples)+";"+str(stan)+"\n"
    
-# Записуємо строку у журнал
+# Записуємо строку в журнал
     file_jr.write(journal_str)
     
 # Завершення роботи скрипта
@@ -528,26 +528,21 @@ mt5.shutdown()
 print("Prophet_model completed successfully!")  
     
 # Цей розділ закоментованого коду є виключно технічним та слугує для вивчення поведінки моделі
-# Корекція методу  normal це службовий модуль викликаний тим, що модель Prophet видає неадекватно великий виброс даних
-# при предикції моделі normal у вихідні дні особливо на короткому проміжку навчання
+# Корекція методу  normal – це службовий модуль, викликаний тим, що модель Prophet видає неадекватно великий викид даних
+# при предикції моделі normal у вихідні дні, особливо на короткому проміжку навчання.
             # Для методу normal викидаємо з виборки передбачення вихідні дні
             #    print(forecast_new)
             #    if method == "normal":
             #        forecast_new = result_processing(forecast_new, predict_num)
             #        print(forecast_new)
-               # Залишаємо технічну можливість при необхідності візуалізувати вплив гіпер параметрів моделі   
+               # Залишаємо технічну можливість при необхідності візуалізувати вплив гіперпараметрів моделі   
             #    fig = model.plot(forecast_new) 
             #    from prophet.plot import add_changepoints_to_plot
             #    a = add_changepoints_to_plot(fig.gca(), model_regres, forecast_new)       
             #    fig.show()
             #    plt.show()
                     
-            # Зберігаємо повний файл для аналізу з данними передбачення
+            # Зберігаємо повний файл для аналізу з даними передбачення
             #    file_forecast = "Forecast─" + i + "─" + ticker + "─" + end.strftime("%Y─%m─%d") + "-full.csv"
             #    forecast_new.to_csv('C:\\Users\\Александр\\AppData\\Roaming\\MetaQuotes\\Terminal\\550A9E6B699B2474CBE17711F34DD758\\MQL5\\Files\\' + file_forecast)
    
- 
-
-
-
-
